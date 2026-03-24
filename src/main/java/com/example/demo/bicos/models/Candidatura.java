@@ -1,0 +1,94 @@
+package com.example.demo.bicos.models;
+
+import java.time.Instant;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name="candidatura")
+public class Candidatura {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    
+    @ManyToOne
+    @JoinColumn(name = "bicos_id")
+    private Bicos bicos;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="status")
+    private CandidaturaStatus status;
+
+    @CreationTimestamp
+    @Column(name="data_solicitacao")
+    private Instant dataSolicitacao;
+
+    public Candidatura() {
+    }
+
+    public Candidatura(Long id, User user, Bicos bicos, CandidaturaStatus status, Instant dataSolicitacao) {
+        this.id = id;
+        this.user = user;
+        this.bicos = bicos;
+        this.status = status;
+        this.dataSolicitacao = dataSolicitacao;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Bicos getBicos() {
+        return bicos;
+    }
+
+    public void setBicos(Bicos bicos) {
+        this.bicos = bicos;
+    }
+
+    public CandidaturaStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CandidaturaStatus status) {
+        this.status = status;
+    }
+
+    public Instant getDataSolicitacao() {
+        return dataSolicitacao;
+    }
+
+    public void setDataSolicitacao(Instant dataSolicitacao) {
+        this.dataSolicitacao = dataSolicitacao;
+    }
+
+    
+}
+  //candidatura - fk_user, fk_bico, status enum-(confirmado,pendente, aprovado, rejeitado), data_solicitacao,
