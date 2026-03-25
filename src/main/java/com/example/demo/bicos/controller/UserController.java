@@ -1,6 +1,5 @@
 package com.example.demo.bicos.controller;
 
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,12 +8,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.bicos.controller.dto.CreateUserDto;
 import com.example.demo.bicos.controller.dto.ListUsersDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
 import com.example.demo.bicos.models.User;
@@ -53,14 +50,6 @@ public class UserController {
         return user.map(ResponseEntity::ok)
                .orElseGet(() -> ResponseEntity.notFound().build());
         }
-
-    @PostMapping
-    @Operation(summary = "Criar usuário")
-    public ResponseEntity<User> createUser(@RequestBody CreateUserDto createUserDto) {
-        var userId = userService.createUser(createUserDto);
-        
-        return ResponseEntity.created(URI.create("/v1/user/" + userId.toString())).build();
-    }
     
     @PatchMapping("/{userId}")
     @Operation(summary="Atualizar usuário por ID")

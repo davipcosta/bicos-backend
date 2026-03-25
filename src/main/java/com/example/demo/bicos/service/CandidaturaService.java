@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.bicos.models.Candidatura;
 import com.example.demo.bicos.models.CandidaturaStatus;
-import com.example.demo.bicos.models.User;
+import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
 import com.example.demo.bicos.repo.CandidaturaRepository;
 import com.example.demo.bicos.repo.UserRepository;
@@ -35,8 +35,8 @@ public class CandidaturaService {
         var user = userRepo.findById(UUID.fromString(userId))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (user.getRole() != User.UserRole.USER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Só USER pode se candidatar");
+        if (user.getRole() != UserRole.FREELANCER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Só FREELANCER pode se candidatar");
         }
 
         var bico = bicosRepo.findById(bicoId)
@@ -59,7 +59,7 @@ public class CandidaturaService {
         var aprovador = userRepo.findById(UUID.fromString(aprovadorId))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (aprovador.getRole() == User.UserRole.USER) {
+        if (aprovador.getRole() == UserRole.FREELANCER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
@@ -76,7 +76,7 @@ public class CandidaturaService {
         var aprovador = userRepo.findById(UUID.fromString(aprovadorId))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (aprovador.getRole() == User.UserRole.USER) {
+        if (aprovador.getRole() == UserRole.FREELANCER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 

@@ -33,6 +33,9 @@ public class Bicos {
     private String description;
 
     @Column
+    private String city;
+
+    @Column
     private Long price;
 
     @CreationTimestamp
@@ -46,12 +49,13 @@ public class Bicos {
     public Bicos() {
     }
 
-    public Bicos(Long id, User user, String name, String description, Long price, Instant createdAt,
+    public Bicos(Long id, User user, String name, String description, String city, Long price, Instant createdAt,
             Instant updatedAt) {
         this.id = id;
         this.user = user;
         this.name = name;
         this.description = description;
+        this.city = city;
         this.price = price;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -87,6 +91,14 @@ public class Bicos {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public Long getPrice() {

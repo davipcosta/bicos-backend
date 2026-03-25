@@ -8,13 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.bicos.controller.dto.CreateUserDto;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
 import com.example.demo.bicos.models.Bicos;
 import com.example.demo.bicos.models.User;
-import com.example.demo.bicos.models.User.UserRole;
+import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
 import com.example.demo.bicos.repo.UserRepository;
 
@@ -28,23 +27,23 @@ public class UserService {
         this.bicosRepo = bicosRepo;
     }
     
-    public UUID createUser(CreateUserDto createUserDto){
+    // public UUID createUser(CreateUserDto createUserDto){
         
-        var entity = new User(
-            UUID.randomUUID(),
-            createUserDto.username(), 
-            createUserDto.mail(), 
-            createUserDto.password(),
-            null,
-            null, 
-            null);
+    //     var entity = new User(
+    //         UUID.randomUUID(),
+    //         createUserDto.username(), 
+    //         createUserDto.mail(), 
+    //         createUserDto.password(),
+    //         null,
+    //         null, 
+    //         null);
 
-        entity.setRole(UserRole.USER);
+    //     entity.setRole(UserRole.FREELANCER);
 
-        var userSaved = userRepo.save(entity);
+    //     var userSaved = userRepo.save(entity);
 
-        return userSaved.getId();
-    }
+    //     return userSaved.getId();
+    // }
 
     public List<User> listUsers(){
         return userRepo.findAll();
@@ -57,11 +56,11 @@ public class UserService {
     public void deleteById(String userId){
         var id = UUID.fromString(userId);
 
-        var userExists = userRepo.existsById(id);
+        if (!userRepo.existsById(id)) {
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 
-        if (userExists){
-            userRepo.deleteById(id);
-        }
+    userRepo.deleteById(id);
     }
 
     public void updateUserById(String userId, UpdateUserDto updateUserDto){
@@ -72,8 +71,8 @@ public class UserService {
         if (userEntity.isPresent()){
             var user = userEntity.get();
 
-            if (updateUserDto.username() != null){
-                user.setUsername(updateUserDto.username());
+            if (updateUserDto.login() != null){
+                user.setLogin(updateUserDto.login());
             }
 
             if (updateUserDto.mail() != null){
@@ -89,8 +88,8 @@ public class UserService {
         var user = userRepo.findById(UUID.fromString(userId))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!user.getRole().equals(UserRole.ADMIN)) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Apenas administradores podem criar bicos.");
+        if (!user.getRole().equals(UserRole.APROVADOR_N1)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Apenas APROVADOR_N1 pode criar bicos.");
     }
 
     var bicos = new Bicos(
@@ -98,6 +97,7 @@ public class UserService {
         user, 
         registerBicosDto.name(),
         registerBicosDto.description(),
+        registerBicosDto.city(),
         registerBicosDto.price(),
         null,
         null
@@ -113,7 +113,7 @@ public class UserService {
         
        return user.getBicos()
                 .stream()
-                .map(ad -> new GetBicosByIdDto(ad.getId().toString(), ad.getName(),ad.getDescription(),ad.getPrice(), ad.getCreatedAt(), ad.getUpdatedAt()))
+                .map(ad -> new GetBicosByIdDto(ad.getId().toString(), ad.getName(),ad.getDescription(),ad.getCity(),ad.getPrice(), ad.getCreatedAt(), ad.getUpdatedAt()))
                 .toList();
     }
     

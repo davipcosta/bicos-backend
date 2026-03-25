@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import com.example.demo.bicos.models.User;
 
-public record ListUsersDto(UUID id, String username, String mail) {
+public record ListUsersDto(UUID id, String login, String mail) {
     public ListUsersDto(User user){
-        this(user.getId(), user.getUsername(), user.getMail());
+        this(user.getId(), user.getLogin(), user.getMail());
     }
 }

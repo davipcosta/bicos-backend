@@ -1,6 +1,7 @@
 package com.example.demo.bicos.models;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,9 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -28,7 +32,7 @@ import jakarta.persistence.Table;
 @SQLRestriction("deleted_at is NULL")
 @EntityListeners(AuditingEntityListener.class)
 @Table(name="users")
-public class User {
+public class User implements UserDetails {
     
     @Id
     @GeneratedValue(strategy=GenerationType.UUID)
@@ -36,7 +40,7 @@ public class User {
     private UUID id;
 
     @Column
-    private String username;
+    private String login;
 
     @Column
     private String mail;
@@ -45,7 +49,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
+    @Column
     private UserRole role;
 
     @CreationTimestamp
@@ -70,10 +74,10 @@ public class User {
     public User() {
     }
 
-    public User(UUID id, String username, String mail, String password, Instant createdAt,
+    public User(UUID id, String login, String mail, String password, Instant createdAt,
             Instant updatedAt, Instant deletedAt) {
         this.id = id;
-        this.username = username;
+        this.login = login;
         this.mail = mail;
         this.password = password;
         this.createdAt = createdAt;
@@ -81,12 +85,16 @@ public class User {
         this.deletedAt = deletedAt;
     }
 
-    public enum UserRole {
-    ADMIN,
-    OPERADOR,
-    USER
-}
-//candidatura - fk_user, fk_bico, status enum-(confirmado,pendente, aprovado, rejeitado), data_solicitacao, 
+
+
+    public User(String login, String mail, String password, UserRole role) {
+        this.login = login;
+        this.mail = mail;
+        this.password = password;
+        this.role = role;
+    }
+
+    //candidatura - fk_user, fk_bico, status enum-(confirmado,pendente, aprovado, rejeitado), data_solicitacao, 
 //historico_aprov - fk_candidatura, fk_user_aprovador, decisao enum(aprovado ou rejeitado), motivo, data_aprovacao 
     public UUID getId() {
         return id;
@@ -96,12 +104,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getMail() {
@@ -112,6 +120,7 @@ public class User {
         this.mail = mail;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
@@ -173,6 +182,62 @@ public class User {
 
     public void setCandidaturas(List<Candidatura> candidaturas) {
         this.candidaturas = candidaturas;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+    if (this.role == UserRole.APROVADOR_N1) {
+        return List.of(
+            new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
+            new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
+            new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
+            new SimpleGrantedAuthority("ROLE_FREELANCER")
+        );
+    }
+
+    if (this.role == UserRole.APROVADOR_N2) {
+        return List.of(
+            new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
+            new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
+            new SimpleGrantedAuthority("ROLE_FREELANCER")
+        );
+    }
+
+    if (this.role == UserRole.APROVADOR_N3) {
+        return List.of(
+            new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
+            new SimpleGrantedAuthority("ROLE_FREELANCER")
+        );
+    }
+
+    return List.of(
+        new SimpleGrantedAuthority("ROLE_FREELANCER")
+    );
+}
+
+    @Override
+    public String getUsername() {   
+        return login;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
 }
